@@ -1,5 +1,7 @@
-import argparse
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
+
+from . import  data
 
 
 def main() -> None:
@@ -19,4 +21,5 @@ def parse_args() -> Namespace:
 
 
 def init(args:  Namespace) -> None:
-    print("Hello, World")
+	data.init()
+	print(f"Initialized empty pygit repository in {Path.cwd() / data.GIT_DIR}")
