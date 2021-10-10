@@ -14,3 +14,8 @@ def hash_object(data: bytes) -> str:
     with open(Path(GIT_DIR, "objects", oid), "wb") as out:
         out.write(data)
     return oid
+
+
+def get_object(oid: str) -> bytes:
+    with open(Path(GIT_DIR, "objects", oid), "rb") as f:
+        return f.read()
