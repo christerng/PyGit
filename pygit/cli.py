@@ -41,4 +41,4 @@ def hash_object(args: Namespace) -> None:
 
 def cat_file(args: Namespace) -> None:
     stdout.flush()
-    stdout.buffer.write(data.get_object(args.object))
+    stdout.buffer.write(data.get_object(args.object, expected=None))
