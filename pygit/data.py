@@ -1,35 +1,34 @@
 import abc
 from hashlib import sha1
 from pathlib import Path
-from typing import Union
 from enum import Enum
+from typing import Optional
 
-GIT_DIR = ".pygit"
+GIT_DIR = Path(".pygit")
+OBJ_DIR = GIT_DIR / "objects"
+SEP_BYTE = b"\x00"
 
 
 class PyGitObj(Enum):
-    BLOB = "blob"
-    TREE = "tree"
+    BLOB = b"blob"
+    TREE = b"tree"
 
 
 def init() -> None:
     Path(GIT_DIR).mkdir()
-    Path(GIT_DIR, "objects").mkdir()
+    Path(OBJ_DIR).mkdir()
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
-    obj = (type_.value + "\x00").encode() + data
     oid = sha1(data).hexdigest()
-    with open(Path(GIT_DIR, "objects", oid), "wb") as out:
-        out.write(obj)
+    with open(OBJ_DIR / oid, "wb") as f:
+        f.write(type_.value + SEP_BYTE + data)
     return oid
 
 
-def get_object(oid: str, expected: PyGitObj = PyGitObj.BLOB) -> bytes:
-    with open(Path(GIT_DIR, "objects", oid), "rb") as f:
-        obj = f.read()
-    type_,  content = obj.split("\x00".encode(), 1)
-    type_ = type_.decode()
+def get_object(oid: str, expected: Optional[PyGitObj] = PyGitObj.BLOB) -> bytes:
+    with open(OBJ_DIR / oid, "rb") as f:
+        type_, content = f.read().split(SEP_BYTE, 1)
     if expected is not None:
-        assert type_ == expected.value, f"Expected {expected}, got {type_}"
+        assert type_ == expected.value, f"Expected {expected}, got {type_.decode()}"
     return content
