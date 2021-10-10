@@ -1,7 +1,9 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
+from sys import stdout
 
 from . import data
+from . import base
 
 
 def main() -> None:
@@ -21,6 +23,10 @@ def parse_args() -> Namespace:
     hash_object_parser.set_defaults(func=hash_object)
     hash_object_parser.add_argument("file")
 
+    cat_file_parser = commands.add_parser("cat-file")
+    cat_file_parser.set_defaults(func=cat_file)
+    cat_file_parser.add_argument("object")
+
     return parser.parse_args()
 
 
@@ -30,5 +36,10 @@ def init(args: Namespace) -> None:
 
 
 def hash_object(args: Namespace) -> None:
-	with open(args.file, "rb") as f:
-		print(data.hash_object(f.read()))
+    with open(args.file, "rb") as f:
+        print(data.hash_object(f.read()))
+
+
+def cat_file(args: Namespace) -> None:
+    stdout.flush()
+    stdout.buffer.write(data.get_object(args.object, expected=None))
