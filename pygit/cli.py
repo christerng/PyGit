@@ -3,6 +3,7 @@ from pathlib import Path
 from sys import stdout
 
 from . import data
+from . import base
 
 
 def main() -> None:
