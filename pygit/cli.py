@@ -1,4 +1,5 @@
 from argparse import ArgumentParser, Namespace
+from os import waitpid
 from pathlib import Path
 from sys import stdout
 
@@ -27,6 +28,9 @@ def parse_args() -> Namespace:
     cat_file_parser.set_defaults(func=cat_file)
     cat_file_parser.add_argument("object")
 
+    write_tree_parser = commands.add_parser("write-tree")
+    write_tree_parser.set_defaults(func=write_tree)
+
     return parser.parse_args()
 
 
@@ -43,3 +47,7 @@ def hash_object(args: Namespace) -> None:
 def cat_file(args: Namespace) -> None:
     stdout.flush()
     stdout.buffer.write(data.get_object(args.object, expected=None))
+
+
+def write_tree(args: Namespace) -> None:
+    base.write_tree()
