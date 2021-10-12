@@ -17,19 +17,23 @@ def parse_args() -> Namespace:
 
     commands = parser.add_subparsers(dest="command", required=True)
 
-    init_parser = commands.add_parser("init")
+    init_parser = commands.add_parser(name="init")
     init_parser.set_defaults(func=init)
 
-    hash_object_parser = commands.add_parser("hash-object")
+    hash_object_parser = commands.add_parser(name="hash-object")
     hash_object_parser.set_defaults(func=hash_object)
     hash_object_parser.add_argument("file")
 
-    cat_file_parser = commands.add_parser("cat-file")
+    cat_file_parser = commands.add_parser(name="cat-file")
     cat_file_parser.set_defaults(func=cat_file)
     cat_file_parser.add_argument("object")
 
-    write_tree_parser = commands.add_parser("write-tree")
+    write_tree_parser = commands.add_parser(name="write-tree")
     write_tree_parser.set_defaults(func=write_tree)
+
+    read_tree_parser = commands.add_parser(name="read-tree")
+    read_tree_parser.set_defaults(func=read_tree)
+    read_tree_parser.add_argument("tree")
 
     return parser.parse_args()
 
@@ -51,3 +55,7 @@ def cat_file(args: Namespace) -> None:
 
 def write_tree(args: Namespace) -> None:
     print(base.write_tree())
+
+
+def read_tree(args: Namespace) -> None:
+    base.read_tree(args.tree)
