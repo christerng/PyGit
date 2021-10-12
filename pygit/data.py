@@ -1,4 +1,3 @@
-import abc
 from hashlib import sha1
 from pathlib import Path
 from enum import Enum
