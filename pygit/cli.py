@@ -50,4 +50,4 @@ def cat_file(args: Namespace) -> None:
 
 
 def write_tree(args: Namespace) -> None:
-    base.write_tree()
+    print(base.write_tree())
