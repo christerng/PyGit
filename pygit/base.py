@@ -32,7 +32,7 @@ def write_tree(directory: Path = Path()) -> str:
     return data.hash_object(tree, data.PyGitObj.TREE)
 
 
-def _iter_tree_entries(oid: str) -> Generator[list, None, None]:
+def iter_tree_entries(oid: str) -> Generator[list, None, None]:
     if oid is None:
         return
     tree = data.get_object(oid, data.PyGitObj.TREE)
@@ -42,7 +42,7 @@ def _iter_tree_entries(oid: str) -> Generator[list, None, None]:
 
 def flatten_tree(oid: str, base_path: Path = Path()) -> dict:
     result = {}
-    for type_, oid, name in _iter_tree_entries(oid):
+    for type_, oid, name in iter_tree_entries(oid):
         type_ = type_.encode()
         path = base_path / name
         if type_ == data.PyGitObj.BLOB.value:
@@ -54,7 +54,21 @@ def flatten_tree(oid: str, base_path: Path = Path()) -> dict:
     return result
 
 
+def empty_current_directory() -> None:
+    for child in Path().iterdir():
+        if is_ignored(child):
+            continue
+        if child.is_file() and not child.is_symlink():
+            child.unlink()
+        elif child.is_dir() and not child.is_symlink():
+            try:
+                child.rmdir()
+            except OSError:
+                pass
+
+
 def read_tree(oid: str) -> None:
+    empty_current_directory()
     for path, oid in flatten_tree(oid).items():
         path.parent.mkdir(exist_ok=True)
         with open(path, "wb") as f:
