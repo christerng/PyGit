@@ -73,7 +73,9 @@ def read_tree(oid: str) -> None:
 
 def commit(message: str) -> str:
     commit = f"tree {write_tree()}\n\n{message}\n"
-    return data.hash_object(commit.encode(), data.PyGitObj.COMMIT)
+    oid = data.hash_object(commit.encode(), data.PyGitObj.COMMIT)
+    data.set_HEAD(oid)
+    return oid
 
 
 def is_ignored(path: Path) -> bool:

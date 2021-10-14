@@ -19,6 +19,11 @@ def init() -> None:
     Path(OBJ_DIR).mkdir()
 
 
+def set_HEAD(oid: str) -> None:
+    with open(GIT_DIR / "HEAD", "w") as f:
+        f.write(oid)
+
+
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
     oid = sha1(data).hexdigest()
     with open(OBJ_DIR / oid, "wb") as f:
