@@ -11,6 +11,7 @@ SEP_BYTE = b"\x00"
 class PyGitObj(Enum):
     BLOB = b"blob"
     TREE = b"tree"
+    COMMIT = b"commit"
 
 
 def init() -> None:
