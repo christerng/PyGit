@@ -24,6 +24,14 @@ def set_HEAD(oid: str) -> None:
         f.write(oid)
 
 
+def get_HEAD() -> Optional[str]:
+    path = GIT_DIR / "HEAD"
+    if not path.is_file():
+        return
+    with open(path) as f:
+        return f.read()
+
+
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
     oid = sha1(data).hexdigest()
     with open(OBJ_DIR / oid, "wb") as f:

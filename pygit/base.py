@@ -72,7 +72,13 @@ def read_tree(oid: str) -> None:
 
 
 def commit(message: str) -> str:
-    commit = f"tree {write_tree()}\n\n{message}\n"
+    commit = f"tree {write_tree()}\n"
+
+    head = data.get_HEAD()
+    if head is not None:
+        commit += f"parent {head}\n"
+
+    commit += f"\n{message}\n"
     oid = data.hash_object(commit.encode(), data.PyGitObj.COMMIT)
     data.set_HEAD(oid)
     return oid
