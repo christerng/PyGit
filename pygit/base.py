@@ -4,10 +4,6 @@ from typing import Generator
 from . import base, data
 
 
-def is_ignored(path: Path) -> bool:
-    return str(data.GIT_DIR) in str(path)
-
-
 def write_tree(directory: Path = Path()) -> str:
     paths = []
     for child in directory.iterdir():
@@ -73,3 +69,20 @@ def read_tree(oid: str) -> None:
         path.parent.mkdir(exist_ok=True)
         with open(path, "wb") as f:
             f.write(data.get_object(oid))
+
+
+def commit(message: str) -> str:
+    commit = f"tree {write_tree()}\n"
+
+    head = data.get_HEAD()
+    if head is not None:
+        commit += f"parent {head}\n"
+
+    commit += f"\n{message}\n"
+    oid = data.hash_object(commit.encode(), data.PyGitObj.COMMIT)
+    data.set_HEAD(oid)
+    return oid
+
+
+def is_ignored(path: Path) -> bool:
+    return str(data.GIT_DIR) in str(path)

@@ -11,11 +11,25 @@ SEP_BYTE = b"\x00"
 class PyGitObj(Enum):
     BLOB = b"blob"
     TREE = b"tree"
+    COMMIT = b"commit"
 
 
 def init() -> None:
     Path(GIT_DIR).mkdir()
     Path(OBJ_DIR).mkdir()
+
+
+def set_HEAD(oid: str) -> None:
+    with open(GIT_DIR / "HEAD", "w") as f:
+        f.write(oid)
+
+
+def get_HEAD() -> Optional[str]:
+    path = GIT_DIR / "HEAD"
+    if not path.is_file():
+        return
+    with open(path) as f:
+        return f.read()
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
