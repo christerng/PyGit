@@ -1,4 +1,5 @@
 venv/
+tmp/
 *.txt
 *.pyc
 PKG-INFO
