@@ -40,6 +40,7 @@ def parse_args() -> Namespace:
 
     log_parser = commands.add_parser(name="log")
     log_parser.set_defaults(func=log)
+    log_parser.add_argument("oid", nargs="?")
 
     return parser.parse_args()
 
@@ -72,7 +73,7 @@ def commit(args: Namespace) -> None:
 
 
 def log(args: Namespace) -> None:
-    oid = data.get_HEAD()
+    oid = args.oid or data.get_HEAD()
     while oid is not None:
         commit = base.get_commit(oid)
         print(f"commit {oid}")
