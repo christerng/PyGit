@@ -1,10 +1,9 @@
 from argparse import ArgumentParser, Namespace
-from os import waitpid
 from pathlib import Path
 from sys import stdout
+from textwrap import indent
 
-from . import data
-from . import base
+from . import base, data
 
 
 def main() -> None:
@@ -39,6 +38,9 @@ def parse_args() -> Namespace:
     commit_parser.set_defaults(func=commit)
     commit_parser.add_argument("-m", "--message", required=True)
 
+    log_parser = commands.add_parser(name="log")
+    log_parser.set_defaults(func=log)
+
     return parser.parse_args()
 
 
@@ -67,3 +69,12 @@ def read_tree(args: Namespace) -> None:
 
 def commit(args: Namespace) -> None:
     print(base.commit(args.message))
+
+
+def log(args: Namespace) -> None:
+    oid = data.get_HEAD()
+    while oid is not None:
+        commit = base.get_commit(oid)
+        print(f"commit {oid}")
+        print(indent(commit.message, "    "), end="\n\n")
+        oid = commit.parent
