@@ -1,7 +1,10 @@
+from collections import namedtuple
 from pathlib import Path
 from typing import Generator
 
 from . import base, data
+
+Commit = namedtuple("Commit", ["tree", "parent", "message"])
 
 
 def write_tree(directory: Path = Path()) -> str:
@@ -82,6 +85,20 @@ def commit(message: str) -> str:
     oid = data.hash_object(commit.encode(), data.PyGitObj.COMMIT)
     data.set_HEAD(oid)
     return oid
+
+
+def get_commit(oid: str) -> Commit:
+    parent = None
+    commit = data.get_object(oid, data.PyGitObj.COMMIT).decode()
+    for line in iter(commit.splitlines()):
+        if len(line) == 0:
+            continue
+        key, value = line.split(" ", 1)
+        if key == data.PyGitObj.TREE.value.decode():
+            tree = value
+        elif key == data.PyGitObj.PARENT.value.decode():
+            parent = value
+    return Commit(tree=tree, parent=parent, message=commit)
 
 
 def is_ignored(path: Path) -> bool:
