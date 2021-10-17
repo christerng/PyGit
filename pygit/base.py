@@ -93,6 +93,10 @@ def checkout(oid: str) -> None:
     data.set_HEAD(oid)
 
 
+def create_tag(name: str, oid: str) -> None:
+    pass
+
+
 def get_commit(oid: str) -> Commit:
     parent = None
     commit = data.get_object(oid, data.PyGitObj.COMMIT).decode()
