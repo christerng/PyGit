@@ -42,6 +42,10 @@ def parse_args() -> Namespace:
     log_parser.set_defaults(func=log)
     log_parser.add_argument("oid", nargs="?")
 
+    checkout_parser = commands.add_parser(name="checkout")
+    checkout_parser.set_defaults(func=checkout)
+    checkout_parser.add_argument("oid")
+
     return parser.parse_args()
 
 
@@ -79,3 +83,7 @@ def log(args: Namespace) -> None:
         print(f"commit {oid}")
         print(indent(commit.message, "    "), end="\n\n")
         oid = commit.parent
+
+
+def checkout(args: Namespace) -> None:
+    base.checkout(args.oid)

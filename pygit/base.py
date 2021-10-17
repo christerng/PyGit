@@ -87,13 +87,19 @@ def commit(message: str) -> str:
     return oid
 
 
+def checkout(oid: str) -> None:
+    commit = get_commit(oid)
+    read_tree(commit.tree)
+    data.set_HEAD(oid)
+
+
 def get_commit(oid: str) -> Commit:
     parent = None
     commit = data.get_object(oid, data.PyGitObj.COMMIT).decode()
     for line in iter(commit.splitlines()):
         if len(line) == 0:
             continue
-        key, value = line.split(" ", 1)
+        key, value = line.split(maxsplit=1)
         if key == data.PyGitObj.TREE.value.decode():
             tree = value
         elif key == data.PyGitObj.PARENT.value.decode():
