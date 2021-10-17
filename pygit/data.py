@@ -42,7 +42,7 @@ def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
 
 def get_object(oid: str, expected: Optional[PyGitObj] = PyGitObj.BLOB) -> bytes:
     with open(OBJ_DIR / oid, "rb") as f:
-        type_, content = f.read().split(SEP_BYTE, 1)
+        type_, content = f.read().split(SEP_BYTE, maxsplit=1)
     if expected is not None:
         assert type_ == expected.value, f"Expected {expected}, got {type_.decode()}"
     return content
