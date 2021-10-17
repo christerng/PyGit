@@ -77,20 +77,20 @@ def read_tree(oid: str) -> None:
 def commit(message: str) -> str:
     commit = f"tree {write_tree()}\n"
 
-    head = data.get_HEAD()
+    head = data.get_ref("HEAD")
     if head is not None:
         commit += f"parent {head}\n"
 
     commit += f"\n{message}\n"
     oid = data.hash_object(commit.encode(), data.PyGitObj.COMMIT)
-    data.set_HEAD(oid)
+    data.update_ref("HEAD", oid)
     return oid
 
 
 def checkout(oid: str) -> None:
     commit = get_commit(oid)
     read_tree(commit.tree)
-    data.set_HEAD(oid)
+    data.update_ref("HEAD", oid)
 
 
 def create_tag(name: str, oid: str) -> None:

@@ -20,17 +20,17 @@ def init() -> None:
     Path(OBJ_DIR).mkdir()
 
 
-def set_HEAD(oid: str) -> None:
-    with open(GIT_DIR / "HEAD", "w") as f:
+def update_ref(ref: str, oid: str) -> None:
+    with open(GIT_DIR / ref, "w") as f:
         f.write(oid)
 
 
-def get_HEAD() -> Optional[str]:
-    path = GIT_DIR / "HEAD"
+def get_ref(ref: str) -> Optional[str]:
+    path = GIT_DIR / ref
     if not path.is_file():
         return
     with open(path) as f:
-        return f.read()
+        return f.read().strip()
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
