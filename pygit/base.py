@@ -94,7 +94,7 @@ def checkout(oid: str) -> None:
 
 
 def create_tag(name: str, oid: str) -> None:
-    pass
+    data.update_ref(Path("refs", "tags", name), oid)
 
 
 def get_commit(oid: str) -> Commit:

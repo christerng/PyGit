@@ -21,7 +21,9 @@ def init() -> None:
 
 
 def update_ref(ref: str, oid: str) -> None:
-    with open(GIT_DIR / ref, "w") as f:
+    path = GIT_DIR / ref
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
         f.write(oid)
 
 
