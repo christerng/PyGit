@@ -1,5 +1,6 @@
 from collections import namedtuple
 from pathlib import Path
+from string import hexdigits
 from typing import Generator
 
 from . import base, data
@@ -112,7 +113,21 @@ def get_commit(oid: str) -> Commit:
 
 
 def get_oid(name: str) -> str:
-    return data.get_ref(name) or name
+    refs = [
+        f"{name}",
+        f"refs/{name}",
+        f"refs/tags/{name}",
+        f"refs/heads/{name}"
+    ]
+    for ref in refs:
+        if data.get_ref(ref) is not None:
+            return data.get_ref(ref)
+
+    is_hex = all(char in hexdigits for char in name)
+    if is_hex is True and len(name) == 40:
+        return name
+
+    raise Exception(f"Unknown name {name}")
 
 
 def is_ignored(path: Path) -> bool:
