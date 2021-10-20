@@ -84,12 +84,10 @@ def commit(args: Namespace) -> None:
 
 
 def log(args: Namespace) -> None:
-    oid = args.oid
-    while oid is not None:
+    for oid in base.iter_commits_and_parents({args.oid}):
         commit = base.get_commit(oid)
         print(f"commit {oid}")
         print(indent(commit.message, "    "), end="\n\n")
-        oid = commit.parent
 
 
 def checkout(args: Namespace) -> None:

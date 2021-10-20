@@ -1,7 +1,7 @@
-from collections import namedtuple
+from collections import deque, namedtuple
 from pathlib import Path
 from string import hexdigits
-from typing import Generator, Optional
+from typing import Generator, Set
 
 from . import base, data
 
@@ -110,6 +110,21 @@ def get_commit(oid: str) -> Commit:
         elif key == data.PyGitObj.PARENT.value.decode():
             parent = value
     return Commit(tree=tree, parent=parent, message=commit)
+
+
+def iter_commits_and_parents(oids: Set[str]) -> Generator[str, None, None]:
+    oids = deque(oids)
+    visited = set()
+
+    while len(oids) > 0:
+        oid = oids.popleft()
+        if oid is None or oid in visited:
+            continue
+        visited.add(oid)
+        yield oid
+
+        commit = get_commit(oid)
+        oids.appendleft(commit.parent)
 
 
 def get_oid(name: str) -> str:
