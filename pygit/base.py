@@ -1,7 +1,7 @@
 from collections import namedtuple
 from pathlib import Path
 from string import hexdigits
-from typing import Generator
+from typing import Generator, Optional
 
 from . import base, data
 
@@ -113,6 +113,9 @@ def get_commit(oid: str) -> Commit:
 
 
 def get_oid(name: str) -> str:
+    if name == "@":
+        name = "HEAD"
+
     refs = [
         f"{name}",
         f"refs/{name}",
