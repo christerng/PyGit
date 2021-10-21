@@ -24,26 +24,26 @@ def init() -> None:
     Path(OBJ_DIR).mkdir()
 
 
-def update_ref(ref: str, value: RefValue) -> None:
+def update_ref(ref: str, value: RefValue, deref: bool = True) -> None:
     assert value.symbolic is False
-    ref = get_ref_internal(ref)[0]
+    ref = get_ref_internal(ref, deref)[0]
     path = GIT_DIR / ref
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
         f.write(value.value)
 
 
-def get_ref(ref: str) -> Optional[RefValue]:
-    return get_ref_internal(ref)[-1]
+def get_ref(ref: str, deref: bool = True) -> RefValue:
+    return get_ref_internal(ref, deref)[-1]
 
 
-def get_ref_internal(ref: str) -> Tuple[str, RefValue]:
+def get_ref_internal(ref: str, deref: bool) -> Tuple[str, RefValue]:
     path = GIT_DIR / ref
     if not path.is_file():
         return ref, RefValue(symbolic=False, value=None)
     with open(path) as f:
         value = f.read().strip()
-    if value.startswith("ref:"):
+    if value.startswith("ref:") and deref is True:
         return get_ref_internal(value.split(":", 1)[-1])
     return ref, RefValue(symbolic=False, value=value)
 

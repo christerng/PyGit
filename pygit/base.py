@@ -146,7 +146,7 @@ def get_oid(name: str) -> str:
         f"refs/heads/{name}"
     ]
     for ref in refs:
-        if data.get_ref(ref) is not None:
+        if data.get_ref(ref, deref=False) is not None:
             return data.get_ref(ref).value
 
     is_hex = all(char in hexdigits for char in name)
