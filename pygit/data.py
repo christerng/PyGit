@@ -25,12 +25,14 @@ def init() -> None:
 
 
 def update_ref(ref: str, value: RefValue, deref: bool = True) -> None:
-    assert value.symbolic is False
+    assert value.value is not None
     ref = get_ref_internal(ref, deref)[0]
     path = GIT_DIR / ref
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
-        f.write(value.value)
+        f.write(
+            f"ref: {value.value}" if value.symbolic is True else value.value
+        )
 
 
 def get_ref(ref: str, deref: bool = True) -> RefValue:
