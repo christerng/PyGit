@@ -98,6 +98,10 @@ def create_tag(name: str, oid: str) -> None:
     data.update_ref(Path("refs", "tags", name), oid)
 
 
+def create_branch(name: str, oid: str) -> None:
+    data.update_ref(Path("refs", "heads", name), oid)
+
+
 def get_commit(oid: str) -> Commit:
     parent = None
     commit = data.get_object(oid, data.PyGitObj.COMMIT).decode()

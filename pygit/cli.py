@@ -1,6 +1,6 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from sys import stdout
+from sys import base_prefix, stdout
 from textwrap import indent
 
 from . import base, data
@@ -53,6 +53,11 @@ def parse_args() -> Namespace:
     tag_parser.add_argument("name")
     tag_parser.add_argument("oid", default="@", type=oid, nargs="?")
 
+    branch_parser = commands.add_parser(name="branch")
+    branch_parser.set_defaults(func=branch)
+    branch_parser.add_argument("name")
+    branch_parser.add_argument("start", default="@", type=oid, nargs="?")
+
     return parser.parse_args()
 
 
@@ -96,3 +101,8 @@ def checkout(args: Namespace) -> None:
 
 def tag(args: Namespace) -> None:
     base.create_tag(args.name, args.oid)
+
+
+def branch(args: Namespace) -> None:
+    base.create_branch(args.name, args.start)
+    print(f"Branch {args.name} created at {args.start[:10]}")
