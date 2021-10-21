@@ -1,3 +1,4 @@
+from collections import namedtuple
 from hashlib import sha1
 from pathlib import Path
 from enum import Enum
@@ -6,6 +7,9 @@ from typing import Optional
 GIT_DIR = Path(".pygit")
 OBJ_DIR = GIT_DIR / "objects"
 SEP_BYTE = b"\x00"
+
+
+RefValue = namedtuple("RefValue", ["symbolic", "value"])
 
 
 class PyGitObj(Enum):
@@ -20,21 +24,22 @@ def init() -> None:
     Path(OBJ_DIR).mkdir()
 
 
-def update_ref(ref: str, oid: str) -> None:
+def update_ref(ref: str, value: RefValue) -> None:
+    assert value.symbolic is False
     path = GIT_DIR / ref
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
-        f.write(oid)
+        f.write(value.value)
 
 
-def get_ref(ref: str) -> Optional[str]:
+def get_ref(ref: str) -> Optional[RefValue]:
     path = GIT_DIR / ref
     if not path.is_file():
         return
     with open(path) as f:
         value = f.read().strip()
         if value is None or not value.startswith("ref:"):
-            return value
+            return RefValue(symbolic=False, value=value)
         return get_ref(value.split(":", 1)[-1].strip())
 
 

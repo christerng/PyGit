@@ -78,28 +78,32 @@ def read_tree(oid: str) -> None:
 def commit(message: str) -> str:
     commit = f"tree {write_tree()}\n"
 
-    head = data.get_ref("HEAD")
+    head = data.get_ref("HEAD").value
     if head is not None:
         commit += f"parent {head}\n"
 
     commit += f"\n{message}\n"
     oid = data.hash_object(commit.encode(), data.PyGitObj.COMMIT)
-    data.update_ref("HEAD", oid)
+    data.update_ref("HEAD", data.RefValue(symbolic=False, value=oid))
     return oid
 
 
 def checkout(oid: str) -> None:
     commit = get_commit(oid)
     read_tree(commit.tree)
-    data.update_ref("HEAD", oid)
+    data.update_ref("HEAD", data.RefValue(symbolic=False, value=oid))
 
 
 def create_tag(name: str, oid: str) -> None:
-    data.update_ref(Path("refs", "tags", name), oid)
+    data.update_ref(
+        Path("refs", "tags", name), data.RefValue(symbolic=False, value=oid)
+    )
 
 
 def create_branch(name: str, oid: str) -> None:
-    data.update_ref(Path("refs", "heads", name), oid)
+    data.update_ref(
+        Path("refs", "heads", name), data.RefValue(symbolic=False, value=oid)
+    )
 
 
 def get_commit(oid: str) -> Commit:
@@ -143,7 +147,7 @@ def get_oid(name: str) -> str:
     ]
     for ref in refs:
         if data.get_ref(ref) is not None:
-            return data.get_ref(ref)
+            return data.get_ref(ref).value
 
     is_hex = all(char in hexdigits for char in name)
     if is_hex is True and len(name) == 40:
