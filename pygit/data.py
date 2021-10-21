@@ -32,7 +32,10 @@ def get_ref(ref: str) -> Optional[str]:
     if not path.is_file():
         return
     with open(path) as f:
-        return f.read().strip()
+        value = f.read().strip()
+        if value is None or not value.startswith("ref:"):
+            return value
+        return get_ref(value.split(":", 1)[-1].strip())
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
