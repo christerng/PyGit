@@ -46,7 +46,7 @@ def get_ref_internal(ref: str, deref: bool) -> Tuple[str, RefValue]:
     with open(path) as f:
         value = f.read().strip()
     if value.startswith("ref:") and deref is True:
-        return get_ref_internal(value.split(":", 1)[-1])
+        return get_ref_internal(value.split(":", 1)[-1].strip(), deref=True)
     return ref, RefValue(symbolic=False, value=value)
 
 

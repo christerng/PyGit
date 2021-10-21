@@ -88,10 +88,16 @@ def commit(message: str) -> str:
     return oid
 
 
-def checkout(oid: str) -> None:
+def checkout(name: str) -> None:
+    oid = get_oid(name)
     commit = get_commit(oid)
     read_tree(commit.tree)
-    data.update_ref("HEAD", data.RefValue(symbolic=False, value=oid))
+
+    if is_branch(name):
+        head = data.RefValue(symbolic=True, value=f"refs/heads/{name}")
+    else:
+        head = data.RefValue(symbolic=False, value=oid)
+    data.update_ref("HEAD", head, deref=False)
 
 
 def create_tag(name: str, oid: str) -> None:
@@ -146,7 +152,7 @@ def get_oid(name: str) -> str:
         f"refs/heads/{name}"
     ]
     for ref in refs:
-        if data.get_ref(ref, deref=False) is not None:
+        if data.get_ref(ref, deref=False).value is not None:
             return data.get_ref(ref).value
 
     is_hex = all(char in hexdigits for char in name)
@@ -158,3 +164,7 @@ def get_oid(name: str) -> str:
 
 def is_ignored(path: Path) -> bool:
     return str(data.GIT_DIR) in str(path)
+
+
+def is_branch(branch: str) -> bool:
+    return data.get_ref(Path("refs", "heads", branch)).value is not None

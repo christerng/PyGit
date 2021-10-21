@@ -46,7 +46,7 @@ def parse_args() -> Namespace:
 
     checkout_parser = commands.add_parser(name="checkout")
     checkout_parser.set_defaults(func=checkout)
-    checkout_parser.add_argument("oid", type=oid)
+    checkout_parser.add_argument("commit")
 
     tag_parser = commands.add_parser(name="tag")
     tag_parser.set_defaults(func=tag)
@@ -96,7 +96,7 @@ def log(args: Namespace) -> None:
 
 
 def checkout(args: Namespace) -> None:
-    base.checkout(args.oid)
+    base.checkout(args.commit)
 
 
 def tag(args: Namespace) -> None:
