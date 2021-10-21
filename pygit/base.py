@@ -1,7 +1,7 @@
 from collections import deque, namedtuple
 from pathlib import Path
 from string import hexdigits
-from typing import Generator, Set
+from typing import Generator, Set, Optional
 
 from . import base, data
 
@@ -117,6 +117,14 @@ def create_branch(name: str, oid: str) -> None:
     data.update_ref(
         Path("refs", "heads", name), data.RefValue(symbolic=False, value=oid)
     )
+
+
+def get_branch_name() -> Optional[str]:
+    head = data.get_ref("HEAD", deref=False)
+    if head.symbolic is False:
+        return
+    assert head.value.startswith("refs/heads/")
+    return Path.relative_to(Path(head.value), Path("refs/heads"))
 
 
 def get_commit(oid: str) -> Commit:

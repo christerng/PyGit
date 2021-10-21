@@ -41,13 +41,19 @@ def get_ref(ref: str, deref: bool = True) -> RefValue:
 
 def get_ref_internal(ref: str, deref: bool) -> Tuple[str, RefValue]:
     path = GIT_DIR / ref
+
     if not path.is_file():
         return ref, RefValue(symbolic=False, value=None)
+
     with open(path) as f:
         value = f.read().strip()
-    if value.startswith("ref:") and deref is True:
-        return get_ref_internal(value.split(":", 1)[-1].strip(), deref=True)
-    return ref, RefValue(symbolic=False, value=value)
+    symbolic = value.startswith("ref:")
+    if symbolic is True:
+        value = value.split(":", 1)[1].strip()
+        if deref is True:
+            return get_ref_internal(value, deref)
+
+    return ref, RefValue(symbolic=symbolic, value=value)
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:

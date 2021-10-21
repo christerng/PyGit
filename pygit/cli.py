@@ -58,6 +58,9 @@ def parse_args() -> Namespace:
     branch_parser.add_argument("name")
     branch_parser.add_argument("start", default="@", type=oid, nargs="?")
 
+    status_parser = commands.add_parser(name="status")
+    status_parser.set_defaults(func=status)
+
     return parser.parse_args()
 
 
@@ -106,3 +109,12 @@ def tag(args: Namespace) -> None:
 def branch(args: Namespace) -> None:
     base.create_branch(args.name, args.start)
     print(f"Branch {args.name} created at {args.start[:10]}")
+
+
+def status(args: Namespace) -> None:
+    branch = base.get_branch_name()
+    if branch is None:
+        head = base.get_oid("@")
+        print(f"HEAD detached at {head[:10]}")
+    else:
+        print(f"On branch {branch}")
