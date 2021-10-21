@@ -1,11 +1,15 @@
+from collections import namedtuple
 from hashlib import sha1
 from pathlib import Path
 from enum import Enum
-from typing import Optional
+from typing import Optional, Tuple
 
 GIT_DIR = Path(".pygit")
 OBJ_DIR = GIT_DIR / "objects"
 SEP_BYTE = b"\x00"
+
+
+RefValue = namedtuple("RefValue", ["symbolic", "value"])
 
 
 class PyGitObj(Enum):
@@ -20,19 +24,30 @@ def init() -> None:
     Path(OBJ_DIR).mkdir()
 
 
-def update_ref(ref: str, oid: str) -> None:
+def update_ref(ref: str, value: RefValue, deref: bool = True) -> None:
+    assert value.value is not None
+    ref = get_ref_internal(ref, deref)[0]
     path = GIT_DIR / ref
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
-        f.write(oid)
+        f.write(
+            f"ref: {value.value}" if value.symbolic is True else value.value
+        )
 
 
-def get_ref(ref: str) -> Optional[str]:
+def get_ref(ref: str, deref: bool = True) -> RefValue:
+    return get_ref_internal(ref, deref)[-1]
+
+
+def get_ref_internal(ref: str, deref: bool) -> Tuple[str, RefValue]:
     path = GIT_DIR / ref
     if not path.is_file():
-        return
+        return ref, RefValue(symbolic=False, value=None)
     with open(path) as f:
-        return f.read().strip()
+        value = f.read().strip()
+    if value.startswith("ref:") and deref is True:
+        return get_ref_internal(value.split(":", 1)[-1].strip(), deref=True)
+    return ref, RefValue(symbolic=False, value=value)
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
