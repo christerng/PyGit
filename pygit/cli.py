@@ -62,7 +62,7 @@ def parse_args() -> Namespace:
 
 
 def init(args: Namespace) -> None:
-    data.init()
+    base.init()
     print(f"Initialized empty pygit repository in {Path.cwd() / data.GIT_DIR}")
 
 

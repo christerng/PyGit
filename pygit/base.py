@@ -8,6 +8,13 @@ from . import base, data
 Commit = namedtuple("Commit", ["tree", "parent", "message"])
 
 
+def init() -> None:
+    data.init()
+    data.update_ref(
+        "HEAD", data.RefValue(symbolic=True, value="refs/heads/master")
+    )
+
+
 def write_tree(directory: Path = Path()) -> str:
     paths = []
     for child in directory.iterdir():
