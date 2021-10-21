@@ -2,7 +2,7 @@ from collections import namedtuple
 from hashlib import sha1
 from pathlib import Path
 from enum import Enum
-from typing import Optional
+from typing import Optional, Tuple
 
 GIT_DIR = Path(".pygit")
 OBJ_DIR = GIT_DIR / "objects"
@@ -26,6 +26,7 @@ def init() -> None:
 
 def update_ref(ref: str, value: RefValue) -> None:
     assert value.symbolic is False
+    ref = get_ref_internal(ref)[0]
     path = GIT_DIR / ref
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
@@ -33,14 +34,18 @@ def update_ref(ref: str, value: RefValue) -> None:
 
 
 def get_ref(ref: str) -> Optional[RefValue]:
+    return get_ref_internal(ref)[-1]
+
+
+def get_ref_internal(ref: str) -> Tuple[str, RefValue]:
     path = GIT_DIR / ref
     if not path.is_file():
-        return
+        return ref, RefValue(symbolic=False, value=None)
     with open(path) as f:
         value = f.read().strip()
-        if value is None or not value.startswith("ref:"):
-            return RefValue(symbolic=False, value=value)
-        return get_ref(value.split(":", 1)[-1].strip())
+    if value.startswith("ref:"):
+        return get_ref_internal(value.split(":", 1)[-1])
+    return ref, RefValue(symbolic=False, value=value)
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
