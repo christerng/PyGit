@@ -2,10 +2,11 @@ from collections import namedtuple
 from hashlib import sha1
 from pathlib import Path
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Generator
 
 GIT_DIR = Path(".pygit")
 OBJ_DIR = GIT_DIR / "objects"
+REF_DIR = GIT_DIR / "refs"
 SEP_BYTE = b"\x00"
 
 
@@ -54,6 +55,14 @@ def get_ref_internal(ref: str, deref: bool) -> Tuple[str, RefValue]:
             return get_ref_internal(value, deref)
 
     return ref, RefValue(symbolic=symbolic, value=value)
+
+
+def iter_refs(prefix: str) -> Generator[str, None, None]:
+    for ref in Path(REF_DIR).rglob("*"):
+        refname = str(ref)
+        if not refname.startswith(prefix):
+            continue
+        yield refname
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
