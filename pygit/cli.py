@@ -147,8 +147,9 @@ def show(args: Namespace) -> None:
     commit = base.get_commit(args.oid)
     print_commit(args.oid, commit)
 
-    if commit.parent is not None:
-        parent_tree = base.get_commit(commit.parent).tree
+    if commit.parent is None:
+        return
+    parent_tree = base.get_commit(commit.parent).tree
     print(
         diff.diff_trees(
             base.flatten_tree(parent_tree),
