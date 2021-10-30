@@ -71,6 +71,10 @@ def parse_args() -> Namespace:
     show_parser.set_defaults(func=show)
     show_parser.add_argument("oid", default="@", type=oid, nargs="?")
 
+    diff_parser = commands.add_parser(name="diff")
+    diff_parser.set_defaults(func=_diff)
+    diff_parser.add_argument("commit", default="@", type=oid, nargs="?")
+
     return parser.parse_args()
 
 
@@ -167,3 +171,14 @@ def print_commit(
     refs_str = f" ({', '.join(refs)})" if refs else ""
     print(f"commit {oid}{refs_str}", end="\n\n")
     print(indent(commit.message, "    "), end="\n\n")
+
+
+def _diff(args: Namespace) -> None:
+    tree = args.commit and base.get_commit(args.commit).tree
+    stdout.flush()
+    stdout.buffer.write(
+        diff.diff_trees(
+            base.flatten_tree(tree),
+            base.get_working_tree()
+        )
+    )

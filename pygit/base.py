@@ -61,6 +61,16 @@ def flatten_tree(oid: str, base_path: Path = Path()) -> dict:
     return result
 
 
+def get_working_tree() -> dict:
+    result = {}
+    for child in Path().iterdir():
+        if is_ignored(child) or not child.is_file():
+            continue
+        with open(child, "rb") as f:
+            result[child] = data.hash_object(f.read())
+    return result
+
+
 def empty_current_directory() -> None:
     for child in Path().iterdir():
         if is_ignored(child):
