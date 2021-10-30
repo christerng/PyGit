@@ -62,6 +62,10 @@ def parse_args() -> Namespace:
     status_parser = commands.add_parser(name="status")
     status_parser.set_defaults(func=status)
 
+    reset_parser = commands.add_parser(name="reset")
+    reset_parser.set_defaults(func=reset)
+    reset_parser.add_argument("commit", type=oid)
+
     return parser.parse_args()
 
 
@@ -130,3 +134,7 @@ def status(args: Namespace) -> None:
         print(f"HEAD detached at {head[:10]}")
     else:
         print(f"On branch {branch}")
+
+
+def reset(args: Namespace) -> None:
+    base.reset(args.commit)

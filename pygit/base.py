@@ -107,6 +107,10 @@ def checkout(name: str) -> None:
     data.update_ref("HEAD", head, deref=False)
 
 
+def reset(oid: str) -> None:
+    data.update_ref("HEAD", data.RefValue(symbolic=False, value=oid))
+
+
 def create_tag(name: str, oid: str) -> None:
     data.update_ref(
         Path("refs", "tags", name), data.RefValue(symbolic=False, value=oid)
