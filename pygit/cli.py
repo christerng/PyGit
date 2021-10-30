@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, Namespace
+from collections import defaultdict
 from pathlib import Path
-from sys import base_prefix, stdout
+from sys import stdout
 from textwrap import indent
 
 from . import base, data
@@ -92,9 +93,14 @@ def commit(args: Namespace) -> None:
 
 
 def log(args: Namespace) -> None:
+    refs = defaultdict(list)
+    for refname, ref in data.iter_refs():
+        refs[ref.value].append(refname)
+
     for oid in base.iter_commits_and_parents({args.oid}):
         commit = base.get_commit(oid)
-        print(f"commit {oid}")
+        refs_str = f" ({', '.join(refs[oid])})" if oid in refs else ""
+        print(f"commit {oid}{refs_str}", end="\n\n")
         print(indent(commit.message, "    "), end="\n\n")
 
 

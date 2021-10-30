@@ -157,7 +157,7 @@ def iter_commits_and_parents(oids: Set[str]) -> Generator[str, None, None]:
 
 
 def iter_branch_names() -> Generator[str, None, None]:
-    for refname in data.iter_refs(".pygit/refs/heads/"):
+    for refname, _ in data.iter_refs(".pygit/refs/heads/"):
         yield Path.relative_to(Path(refname), Path(".pygit/refs/heads/"))
 
 

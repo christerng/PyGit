@@ -57,12 +57,15 @@ def get_ref_internal(ref: str, deref: bool) -> Tuple[str, RefValue]:
     return ref, RefValue(symbolic=symbolic, value=value)
 
 
-def iter_refs(prefix: str) -> Generator[str, None, None]:
+def iter_refs(
+    prefix: str = "",
+    deref: bool = True
+) -> Generator[Tuple[str, RefValue], None, None]:
     for ref in Path(REF_DIR).rglob("*"):
         refname = str(ref)
         if not refname.startswith(prefix):
             continue
-        yield refname
+        yield refname, get_ref(str(ref.relative_to(GIT_DIR)), deref=deref)
 
 
 def hash_object(data: bytes, type_: PyGitObj = PyGitObj.BLOB) -> str:
