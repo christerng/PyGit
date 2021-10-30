@@ -3,8 +3,9 @@ from collections import defaultdict
 from pathlib import Path
 from sys import stdout
 from textwrap import indent
+from typing import Optional, List
 
-from . import base, data
+from . import base, data, diff
 
 
 def main() -> None:
@@ -66,6 +67,10 @@ def parse_args() -> Namespace:
     reset_parser.set_defaults(func=reset)
     reset_parser.add_argument("commit", type=oid)
 
+    show_parser = commands.add_parser(name="show")
+    show_parser.set_defaults(func=show)
+    show_parser.add_argument("oid", default="@", type=oid, nargs="?")
+
     return parser.parse_args()
 
 
@@ -103,9 +108,7 @@ def log(args: Namespace) -> None:
 
     for oid in base.iter_commits_and_parents({args.oid}):
         commit = base.get_commit(oid)
-        refs_str = f" ({', '.join(refs[oid])})" if oid in refs else ""
-        print(f"commit {oid}{refs_str}", end="\n\n")
-        print(indent(commit.message, "    "), end="\n\n")
+        print_commit(oid, commit, refs.get(oid))
 
 
 def checkout(args: Namespace) -> None:
@@ -138,3 +141,29 @@ def status(args: Namespace) -> None:
 
 def reset(args: Namespace) -> None:
     base.reset(args.commit)
+
+
+def show(args: Namespace) -> None:
+    commit = base.get_commit(args.oid)
+    print_commit(args.oid, commit)
+
+    if commit.parent is None:
+        return
+    parent_tree = base.get_commit(commit.parent).tree
+    stdout.flush()
+    stdout.buffer.write(
+        diff.diff_trees(
+            base.flatten_tree(parent_tree),
+            base.flatten_tree(commit.tree)
+        )
+    )
+
+
+def print_commit(
+    oid: str,
+    commit: base.Commit,
+    refs: Optional[List[str]] = None
+) -> None:
+    refs_str = f" ({', '.join(refs)})" if refs else ""
+    print(f"commit {oid}{refs_str}", end="\n\n")
+    print(indent(commit.message, "    "), end="\n\n")

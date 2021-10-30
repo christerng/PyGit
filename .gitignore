@@ -3,3 +3,4 @@ tmp/
 *.txt
 *.pyc
 PKG-INFO
+launch.json
