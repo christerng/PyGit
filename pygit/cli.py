@@ -5,7 +5,7 @@ from sys import stdout
 from textwrap import indent
 from typing import Optional, List
 
-from . import base, data
+from . import base, data, diff
 
 
 def main() -> None:
@@ -146,6 +146,15 @@ def reset(args: Namespace) -> None:
 def show(args: Namespace) -> None:
     commit = base.get_commit(args.oid)
     print_commit(args.oid, commit)
+
+    if commit.parent is not None:
+        parent_tree = base.get_commit(commit.parent).tree
+    print(
+        diff.diff_trees(
+            base.flatten_tree(parent_tree),
+            base.flatten_tree(commit.tree)
+        )
+    )
 
 
 def print_commit(
