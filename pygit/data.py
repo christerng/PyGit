@@ -40,6 +40,11 @@ def get_ref(ref: str, deref: bool = True) -> RefValue:
     return get_ref_internal(ref, deref)[-1]
 
 
+def delete_ref(ref: str, deref: bool = True) -> None:
+    ref = get_ref_internal(ref, deref)[0]
+    (GIT_DIR / ref).unlink()
+
+
 def get_ref_internal(ref: str, deref: bool) -> Tuple[str, RefValue]:
     path = GIT_DIR / ref
 
