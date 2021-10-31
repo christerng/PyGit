@@ -60,3 +60,32 @@ def diff_blobs(oid_from: Optional[str], oid_to: Optional[str], path: str = "blob
             ], stdout=PIPE
         ) as proc:
             return proc.communicate()[0]
+
+
+def merge_trees(tree_head: dict, tree_other: dict) -> dict:
+    tree = {}
+    for path, oid_head, oid_other in compare_trees(tree_head, tree_other):
+        tree[path] = merge_blobs(oid_head, oid_other)
+    return tree
+
+
+def merge_blobs(oid_head: Optional[str], oid_other: Optional[str]) -> str:
+    with NamedTemporaryFile() as file_head, NamedTemporaryFile() as file_other:
+
+        if oid_head is not None:
+            file_head.write(data.get_object(oid_head))
+            file_head.flush()
+
+        if oid_other is not None:
+            file_other.write(data.get_object(oid_other))
+            file_other.flush()
+
+        with Popen(
+            [
+                "diff",
+                "-DHEAD",
+                file_head.name,
+                file_other.name,
+            ], stdout=PIPE
+        ) as proc:
+            return proc.communicate()[0]

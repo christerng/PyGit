@@ -3,7 +3,7 @@ from pathlib import Path
 from string import hexdigits
 from typing import Generator, Set, Optional
 
-from . import base, data
+from . import data, diff
 
 Commit = namedtuple("Commit", ["tree", "parent", "message"])
 
@@ -90,6 +90,16 @@ def read_tree(oid: str) -> None:
         path.parent.mkdir(exist_ok=True)
         with open(path, "wb") as f:
             f.write(data.get_object(oid))
+
+
+def read_tree_merged(tree_head: dict, tree_other: dict) -> None:
+    empty_current_directory()
+    for path, blob in diff.merge_trees(
+        flatten_tree(tree_head),
+        flatten_tree(tree_other)
+    ).items():
+        with open(path, "wb") as f:
+            f.write(blob)
 
 
 def commit(message: str) -> str:
@@ -205,4 +215,9 @@ def is_branch(branch: str) -> bool:
 
 
 def merge(other: str) -> None:
-    pass
+    head = data.get_ref("HEAD").value
+    commit_head = get_commit(head)
+    commit_other = get_commit(other)
+
+    read_tree_merged(commit_head.tree, commit_other.tree)
+    print("Merged in working tree")
