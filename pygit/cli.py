@@ -164,7 +164,7 @@ def show(args: Namespace) -> None:
 
     if commit.parent is None:
         return
-    parent_tree = base.get_commit(commit.parent).tree
+    parent_tree = base.get_commit(commit.parents[0]).tree
     stdout.flush()
     stdout.buffer.write(
         diff.diff_trees(

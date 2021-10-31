@@ -5,7 +5,7 @@ from typing import Generator, Set, Optional
 
 from . import data, diff
 
-Commit = namedtuple("Commit", ["tree", "parent", "message"])
+Commit = namedtuple("Commit", ["tree", "parents", "message"])
 
 
 def init() -> None:
@@ -152,7 +152,7 @@ def get_branch_name() -> Optional[str]:
 
 
 def get_commit(oid: str) -> Commit:
-    parent = None
+    parents = []
     commit = data.get_object(oid, data.PyGitObj.COMMIT).decode()
     for line in iter(commit.splitlines()):
         if len(line) == 0:
@@ -161,8 +161,8 @@ def get_commit(oid: str) -> Commit:
         if key == data.PyGitObj.TREE.value.decode():
             tree = value
         elif key == data.PyGitObj.PARENT.value.decode():
-            parent = value
-    return Commit(tree=tree, parent=parent, message=commit)
+            parents.append(value)
+    return Commit(tree=tree, parents=parents, message=commit)
 
 
 def iter_commits_and_parents(oids: Set[str]) -> Generator[str, None, None]:
@@ -177,7 +177,8 @@ def iter_commits_and_parents(oids: Set[str]) -> Generator[str, None, None]:
         yield oid
 
         commit = get_commit(oid)
-        oids.appendleft(commit.parent)
+        oids.extendleft(commit.parents[:1])
+        oids.extend(commit.parents[1:])
 
 
 def iter_branch_names() -> Generator[str, None, None]:
