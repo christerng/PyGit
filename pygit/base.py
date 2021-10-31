@@ -109,6 +109,11 @@ def commit(message: str) -> str:
     if head is not None:
         commit += f"parent {head}\n"
 
+    merge_head = data.get_ref("MERGE_HEAD").value
+    if merge_head is not None:
+        commit += f"parent {merge_head}\n"
+        data.delete_ref("MERGE_HEAD", deref=False)
+
     commit += f"\n{message}\n"
     oid = data.hash_object(commit.encode(), data.PyGitObj.COMMIT)
     data.update_ref("HEAD", data.RefValue(symbolic=False, value=oid))
@@ -220,5 +225,7 @@ def merge(other: str) -> None:
     commit_head = get_commit(head)
     commit_other = get_commit(other)
 
+    data.update_ref("MERGE_HEAD", data.RefValue(symbolic=False, value=other))
+
     read_tree_merged(commit_head.tree, commit_other.tree)
-    print("Merged in working tree")
+    print("Merged in working tree\nPlease commit")

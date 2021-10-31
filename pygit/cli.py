@@ -134,8 +134,8 @@ def branch(args: Namespace) -> None:
             prefix = "*" if branch == current else " "
             print(f"{prefix} {branch}")
     else:
-        base.create_branch(args.name, args.start_point)
-        print(f"Branch {args.name} created at {args.start_point[:10]}")
+        base.create_branch(args.name, args.start)
+        print(f"Branch {args.name} created at {args.start[:10]}")
 
 
 def status(args: Namespace) -> None:
@@ -145,6 +145,9 @@ def status(args: Namespace) -> None:
         print(f"HEAD detached at {head[:10]}")
     else:
         print(f"On branch {branch}")
+    merge_head = data.get_ref("MERGE_HEAD").value
+    if merge_head is not None:
+        print(f"Merging with {merge_head[:10]}")
     print("\nChanges to be committed:\n")
     head_tree = head and base.get_commit(head).tree
     for path, action in diff.iter_changed_files(
@@ -162,7 +165,7 @@ def show(args: Namespace) -> None:
     commit = base.get_commit(args.oid)
     print_commit(args.oid, commit)
 
-    if commit.parents is None:
+    if len(commit.parents) == 0:
         return
     parent_tree = base.get_commit(commit.parents[0]).tree
     stdout.flush()
