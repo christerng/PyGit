@@ -162,7 +162,7 @@ def show(args: Namespace) -> None:
     commit = base.get_commit(args.oid)
     print_commit(args.oid, commit)
 
-    if commit.parent is None:
+    if commit.parents is None:
         return
     parent_tree = base.get_commit(commit.parents[0]).tree
     stdout.flush()
