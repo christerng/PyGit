@@ -135,12 +135,19 @@ def branch(args: Namespace) -> None:
 
 
 def status(args: Namespace) -> None:
+    head = base.get_oid("@")
     branch = base.get_branch_name()
     if branch is None:
-        head = base.get_oid("@")
         print(f"HEAD detached at {head[:10]}")
     else:
         print(f"On branch {branch}")
+    print("\nChanges to be committed:\n")
+    head_tree = head and base.get_commit(head).tree
+    for path, action in diff.iter_changed_files(
+        base.flatten_tree(head_tree),
+        base.get_working_tree()
+    ):
+        print(f"{action:>12}: {path}")
 
 
 def reset(args: Namespace) -> None:

@@ -6,7 +6,7 @@ from typing import Any, Generator, Tuple, Optional
 from . import data
 
 
-def compare_trees(*trees: dict) -> Generator[Tuple[Any, ...], None, None]:
+def compare_trees(*trees: dict) -> Generator[Tuple[str, ...], None, None]:
     entries = defaultdict(lambda: [None] * len(trees))
 
     for i, tree in enumerate(trees):
@@ -15,6 +15,20 @@ def compare_trees(*trees: dict) -> Generator[Tuple[Any, ...], None, None]:
 
     for path, oids in entries.items():
         yield path, *oids
+
+
+def iter_changed_files(
+    tree_from: dict,
+    tree_to: dict
+) -> Generator[Tuple[str, str], None, None]:
+    for path, oid_from, oid_to in compare_trees(tree_from, tree_to):
+        if oid_from != oid_to:
+            action = (
+                "new file" if not oid_from else
+                "deleted" if not oid_to else
+                "modified"
+            )
+            yield path, action
 
 
 def diff_trees(tree_from: dict, tree_to: dict) -> str:
