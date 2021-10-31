@@ -202,3 +202,7 @@ def is_ignored(path: Path) -> bool:
 
 def is_branch(branch: str) -> bool:
     return data.get_ref(Path("refs", "heads", branch)).value is not None
+
+
+def merge(other: str) -> None:
+    pass

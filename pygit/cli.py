@@ -75,6 +75,10 @@ def parse_args() -> Namespace:
     diff_parser.set_defaults(func=_diff)
     diff_parser.add_argument("commit", default="@", type=oid, nargs="?")
 
+    merge_parser = commands.add_parser(name="merge")
+    merge_parser.set_defaults(func=merge)
+    merge_parser.add_argument("commit", type=oid)
+
     return parser.parse_args()
 
 
@@ -189,3 +193,7 @@ def _diff(args: Namespace) -> None:
             base.get_working_tree()
         )
     )
+
+
+def merge(args: Namespace) -> None:
+    base.merge(args.commit)
