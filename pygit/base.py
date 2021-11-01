@@ -92,9 +92,10 @@ def read_tree(oid: str) -> None:
             f.write(data.get_object(oid))
 
 
-def read_tree_merged(tree_head: dict, tree_other: dict) -> None:
+def read_tree_merged(tree_base: dict, tree_head: dict, tree_other: dict) -> None:
     empty_current_directory()
     for path, blob in diff.merge_trees(
+        flatten_tree(tree_base),
         flatten_tree(tree_head),
         flatten_tree(tree_other)
     ).items():
@@ -222,12 +223,14 @@ def is_branch(branch: str) -> bool:
 
 def merge(other: str) -> None:
     head = data.get_ref("HEAD").value
+    merge_base = get_merge_base(other, head)
+    commit_base = get_commit(merge_base)
     commit_head = get_commit(head)
     commit_other = get_commit(other)
 
     data.update_ref("MERGE_HEAD", data.RefValue(symbolic=False, value=other))
 
-    read_tree_merged(commit_head.tree, commit_other.tree)
+    read_tree_merged(commit_base.tree, commit_head.tree, commit_other.tree)
     print("Merged in working tree\nPlease commit")
 
 
