@@ -229,3 +229,10 @@ def merge(other: str) -> None:
 
     read_tree_merged(commit_head.tree, commit_other.tree)
     print("Merged in working tree\nPlease commit")
+
+
+def get_merge_base(oid1: str, oid2: str) -> str:
+    parents = set(iter_commits_and_parents({oid1}))
+    for oid in iter_commits_and_parents({oid2}):
+        if oid in parents:
+            return oid
